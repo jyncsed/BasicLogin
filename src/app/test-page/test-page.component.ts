@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth-service.service';
 
+import decode from 'jwt-decode';
+import { UserAuthentication } from '../models/user-authentication';
+
 @Component({
   selector: 'app-test-page',
   templateUrl: './test-page.component.html',
@@ -8,20 +11,27 @@ import { AuthService } from '../services/auth-service.service';
 })
 export class TestPageComponent implements OnInit {
 
+  get token() {
+    return decode(localStorage.getItem('token'));
+  }
+
   constructor(private authService: AuthService) { }
 
   ngOnInit() {
   }
 
   login() {
-    this.authService.login();
-  }
-
-  loginAdmin() {
-    this.authService.loginAdmin();
+    const userAuth = new UserAuthentication();
+    userAuth.username = 'test';
+    userAuth.password = 'test';
+    this.authService.login(userAuth);
   }
 
   logout() {
     this.authService.logout();
+  }
+
+  getUsers() {
+    this.authService.getUsers().subscribe();
   }
 }

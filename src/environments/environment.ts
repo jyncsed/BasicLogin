@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   version: 'DEV',
-  buildDate: 'DEV Date 01/01/2000'
+  buildDate: 'DEV Date 01/01/2000',
+  baseAPIUrl: 'https://localhost:44306/'
 };
 /*
  * For easier debugging in development mode, you can import the following file

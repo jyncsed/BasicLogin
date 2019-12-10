@@ -9,18 +9,24 @@ import { AuthGuard } from './guards/auth-guard.service';
 import { RoleGuard } from './guards/role-guard.service';
 import { TestPage2Component } from './test-page2/test-page2.component';
 
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './http-interceptors/auth-interceptor';
+import { NavigationbarComponent } from './components/navigationbar/navigationbar.component';
+
 @NgModule({
   declarations: [
     AppComponent,
     PageNotFoundComponent,
     TestPageComponent,
-    TestPage2Component
+    TestPage2Component,
+    NavigationbarComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule,
   ],
-  providers: [AuthGuard, RoleGuard],
+  providers: [AuthGuard, RoleGuard, { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }, ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

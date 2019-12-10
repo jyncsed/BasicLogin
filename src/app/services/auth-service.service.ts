@@ -3,57 +3,59 @@ import { Router } from '@angular/router';
 import {Observable, pipe, throwError} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import decode from 'jwt-decode';
+import { HttpClient } from '@angular/common/http';
+import { User } from '../models/user';
+import { environment } from 'src/environments/environment';
+import { UserAuthentication } from '../models/user-authentication';
+import { Authenticaion } from '../models/authenticaion';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private message: string;
+  private helper = new JwtHelperService();
+  private token = localStorage.getItem('token');
 
-  // tslint:disable-next-line: variable-name
-  constructor(private _router: Router) { }
+  get isTokenExpired() {
+    return this.helper.isTokenExpired(this.token);
+  }
 
-  /**
-   * this is used to clear anything that needs to be removed
-   */
+  get userRole() {
+    const tokenDecoded = this.helper.decodeToken(this.token);
+    return tokenDecoded.role;
+  }
+
+  constructor(private router: Router, private http: HttpClient) { }
+
   clear(): void {
+    this.token = '';
     localStorage.clear();
   }
 
-
   isAuthenticated(): boolean {
-    return localStorage.getItem('token') != null && !this.isTokenExpired();
+    return this.token != null && !this.isTokenExpired;
   }
 
-  // simulate jwt token is valid
-  // https://github.com/theo4u/angular4-auth/blob/master/src/app/helpers/jwt-helper.ts
-  isTokenExpired(): boolean {
-    return false;
+  login(userAuthentication: UserAuthentication): void {
+   this.http.post<Authenticaion>(environment.baseAPIUrl + 'users/authenticate/',  userAuthentication)
+   .subscribe(data => {
+     localStorage.setItem('token', data.token);
+     this.token = data.token;
+   });
+   this.router.navigate(['/test']);
   }
 
-  loginAdmin(): void {
-    // tslint:disable-next-line: max-line-length
-    localStorage.setItem('token', `eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1MzMyNzM5NjksImV4cCI6MTU2NDgxMDAwNSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiVGVzdCBHdWFyZCIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJyb2xlIjoiQWRtaW4ifQ.rEkg53_IeCLzGHlmaHTEO8KF5BNfl6NEJ8w-VEq2PkE`);
-
-    this._router.navigate(['/test']);
-  }
-
-  login(): void {
-    // tslint:disable-next-line: max-line-length
-    localStorage.setItem('token', `eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1MzMyNzM5NjksImV4cCI6MTU2NDgxMDAwNSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoiVGVzdCBHdWFyZCIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20ifQ.GA0Y9gYIjmx1jLwuRHuBgZ8m6o-NgkD84nO0ym68CWo`);
-
-    this._router.navigate(['/test']);
-  }
-
-  /**
-   * this is used to clear local storage and also the route to login
-   */
   logout(): void {
     this.clear();
-    this._router.navigate(['/test']);
+    this.router.navigate(['/test']);
   }
 
-  decode() {
-    return decode(localStorage.getItem('token'));
+  getToken() {
+    return this.token;
+  }
+
+  getUsers(): Observable<any> {
+   return this.http.get<User[]>(environment.baseAPIUrl + 'users');
   }
 }
