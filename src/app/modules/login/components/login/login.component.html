@@ -1,0 +1,29 @@
+
+<mat-card class="login-card">
+    <mat-card-content>
+        <div>
+            <mat-form-field>
+                <input matInput type="text" placeholder="User Name"
+                    [(ngModel)]="userName">
+                <button mat-button *ngIf="userName" matSuffix mat-icon-button
+                    aria-label="Clear" (click)="userName=''">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field>
+                <input matInput type="password" placeholder="Password"
+                    [(ngModel)]="password">
+                <button mat-button *ngIf="password" matSuffix mat-icon-button
+                    aria-label="Clear" (click)="password=''">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="login()">Login</button>
+        <button mat-raised-button color="warn" (click)="cancel()">Cancel</button>
+    </mat-card-actions>
+</mat-card>
